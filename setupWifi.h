@@ -71,8 +71,8 @@ int setup(uint32_t country, const char *ssid, const char *pass,
 
 int connect()
 {
-    char ssid[] = WIFI_PASSWORD;
-    char pass[] = WIFI_SSID;
+    char ssid[] = WIFI_SSID;
+    char pass[] = WIFI_PASSWORD;
     //char ssid[] = "cTest";
     //char pass[] = "veryinsecure";
     uint32_t country = CYW43_COUNTRY_CANADA;
