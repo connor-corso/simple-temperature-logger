@@ -1,0 +1,20 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${default}",
+                "/home/connor/pico/pico-sdk/src/common/pico_stdlib/include",
+                "/home/connor/pico/pico-sdk/**",
+                "/home/connor/pico/pico-sdk/src/common/pico_base/include",
+                "/home/connor/pico/pico-sdk/lib/lwip/**",
+                "/home/connor/pico/pico-sdk/lib/**"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/arm-none-eabi-gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}

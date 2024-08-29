@@ -1,0 +1,5 @@
+Pin mapping for this "release".
+Pico     | DHT22 sensor
+GP15     | DAT
+3v3(OUT) | VCC
+GND      | GND
