@@ -1,11 +1,10 @@
 #include <stdio.h>
 #include <string.h>
+#include <malloc.h>
 
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "pico/binary_info.h"
-
-#include "lib/DHT20.h"
 
 //Networking includes
 #include "pico/cyw43_arch.h"
@@ -13,6 +12,10 @@
 #include "lwip/dns.h"
 #include "setupWifi.h"
 #include "request.h"
+
+// Custom software includes
+#include "lib/DHT20.h"
+
 
 #ifdef DHT20_EXAMPLE_USE_SDA
 #define I2C_SDA DHT20_EXAMPLE_USE_SDA
@@ -34,12 +37,38 @@
 
 // For logging data to the server
 #define BUF_SIZE 2048
-#define SLEEP_TIME_BETWEEN_READINGS_IN_MS 60 * 1000
+#define SLEEP_TIME_BETWEEN_READINGS_IN_MS 60 * 1000 // Amount of time to sleep for between taking readings
+#define IP_REFRESH_TIMER 15 //Number of times that we will sleep for SLEEP_TIME_BETWEEN_READINGS_IN_MS before refreshing the IP address
 
-void transmit_data(int, float);
+void transmit_data(int, float, ip_addr_t);
+ip_addr_t set_ip(void);
 
 DHT20 sens;
 DHT20 *sens_ptr = &sens;
+
+uint32_t getTotalHeap(void) 
+{
+   extern char __StackLimit, __bss_end__;
+   
+   return &__StackLimit  - &__bss_end__;
+}
+
+uint32_t getFreeHeap(void) 
+{
+   struct mallinfo m = mallinfo();
+
+   return getTotalHeap() - m.uordblks;
+}
+
+void print_free_memory(void)
+{
+    uint32_t total, free, used;
+    total = getTotalHeap();
+    free = getFreeHeap();
+    used = total - free;
+    printf("\nTotal heap: %d\nFree heap: %d\nUsed: %d\n", getTotalHeap, getFreeHeap, used);
+}
+
 
 int setup_dht20()
 {
@@ -80,26 +109,49 @@ int setup_dht20()
 int loop()
 {
     int ret = 0;
-    uint32_t count = 1;
+    uint32_t count = 1, ip_expiry_count = 0;
     printf("Starting the temperature, humidity fetch loop.\n");
+
+    // get the ip address from DNS
+    ip_addr_t ip = set_ip();
+    printf("Got IP address");
+
     while (true)
     {
+        // If the IP has been used for more than IP_REFRESH_TIMER, then get it again
+        if (ip_expiry_count > IP_REFRESH_TIMER)
+        {
+            // Refresh the IP address
+            ip = set_ip();
+            // Reset the count
+            ip_expiry_count = 0;
+        }
+
+        // Take a measurement
         ret = getMeasurement(sens_ptr);
         if (ret != DHT20_OK)
         {
+            // Measurement failed
             printf("Measurement %d failed with error value %d\n", count, ret);
             printf("Trying again after 10s...\n");
         }
         else
         {
-            printf("Measurements: \n");
+            // Measurement was successful, print info and transmit that information
+            printf("\nMeasurement number: %d\n", count);
             printf("--- Temperature: %5.2f C°\n", getTemperature(sens_ptr));
             printf("--- Humidity: %5.2f \%RH\n\n", getHumidity(sens_ptr));
-            transmit_data(4, getTemperature(sens_ptr));
-            transmit_data(5, getHumidity(sens_ptr));
+            transmit_data(4, getTemperature(sens_ptr), ip);
+            transmit_data(5, getHumidity(sens_ptr), ip);
         }
+
+        // Increment the IP expiry count
+        ip_expiry_count++;
+        // Increment the count of total measurements
         count++;
-        //sleep_ms(10000);
+
+        // Print the amount of free memory
+        print_free_memory();
         sleep_ms(SLEEP_TIME_BETWEEN_READINGS_IN_MS);
     }
 
@@ -143,7 +195,7 @@ int log_data_to_server(ip_addr_t ip, float data, char *output_buffer, int statio
     while (pollRequest(&cs1))
     {
         sleep_ms(100);
-        printf(".");
+        //printf("."); // print a "." to indicate that the system is not stuck
     }
     return 0;
 }
@@ -167,14 +219,11 @@ ip_addr_t set_ip()
 }
 
 
-void transmit_data(int station, float data)
+void transmit_data(int station, float data, ip_addr_t ip)
 {
     // Setup a buffer
     char myBuff1[BUF_SIZE];
     
-    // get the ip address from DNS
-    ip_addr_t ip = set_ip();
-    printf("Got IP address");
     // Log the data to the server
     log_data_to_server(ip, data, myBuff1, station);
 

@@ -112,6 +112,7 @@ int pollRequest(struct connectionState **pcs)
         cyw43_arch_lwip_begin();
         altcp_close(cs->pcb);
         cyw43_arch_lwip_end();
+        free(cs->sendData);
         free(cs);
         *pcs = NULL;
         return 0;
