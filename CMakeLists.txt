@@ -11,7 +11,10 @@ pico_sdk_init()
 
 add_executable(simple_sensor
     simple_sensor.c
-)
+    memoryInfo.c
+    networkCommunication.c
+    sensors.c
+    )
 
 # For adding the dht20 library found in lib
 add_subdirectory("lib")

@@ -1,3 +1,6 @@
+// Custom software includes
+#include "appDefinitions.h"
+
 struct connectionState
 {
     int state;
@@ -9,7 +12,9 @@ struct connectionState
 
 err_t sent(void *arg, struct altcp_pcb *pcb, u16_t len)
 {
-    printf("data sent %d\n", len);
+    #ifdef DEBUG_MODE
+        printf("data sent %d\n", len);
+    #endif // DEBUG_MODE
 }
 
 err_t recv(void *arg, struct altcp_pcb *pcb, struct pbuf *p, err_t err)
@@ -17,7 +22,9 @@ err_t recv(void *arg, struct altcp_pcb *pcb, struct pbuf *p, err_t err)
     struct connectionState *cs = (struct connectionState *)arg;
     if (p != NULL)
     {
-        printf("recv total %d  this buffer %d next %d err %d\n", p->tot_len, p->len, p->next, err);
+        #ifdef DEBUG_MODE
+            printf("recv total %d  this buffer %d next %d err %d\n", p->tot_len, p->len, p->next, err);
+        #endif // DEBUG_MODE
         if ((p->tot_len) > 2)
         {
             pbuf_copy_partial(p, (cs->recvData) + (cs->start), p->tot_len, 0);
@@ -44,7 +51,9 @@ static err_t connected(void *arg, struct altcp_pcb *pcb, err_t err)
 
 err_t poll(void *arg, struct altcp_pcb *pcb)
 {
-    printf("Connection Closed \n");
+    #ifdef DEBUG_MODE
+        printf("Connection Closed \n");
+    #endif // DEBUG_MODE
     struct connectionState *cs = (struct connectionState *)arg;
     cs->state = 6;
 }

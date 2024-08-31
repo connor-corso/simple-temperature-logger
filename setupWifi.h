@@ -1,5 +1,8 @@
 #include "wifiInfo.h"
 
+// Custom software includes
+#include "appDefinitions.h"
+
 
 int setup(uint32_t country, const char *ssid, const char *pass,
           uint32_t auth, const char *hostname, ip_addr_t *ip,
@@ -69,12 +72,10 @@ int setup(uint32_t country, const char *ssid, const char *pass,
     return status;
 }
 
-int connect()
+int connect(void)
 {
     char ssid[] = WIFI_SSID;
     char pass[] = WIFI_PASSWORD;
-    //char ssid[] = "cTest";
-    //char pass[] = "veryinsecure";
     uint32_t country = CYW43_COUNTRY_CANADA;
     uint32_t auth = CYW43_AUTH_WPA2_MIXED_PSK;
     return  setup(country, ssid, pass, auth, "MyPicoW", NULL, NULL, NULL);
