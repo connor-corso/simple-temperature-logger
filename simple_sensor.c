@@ -4,6 +4,7 @@
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 #include "pico/binary_info.h"
+#include "hardware/watchdog.h"
 
 // Custom software includes
 #include "appDefinitions.h"
@@ -12,6 +13,8 @@
 #include "memoryInfo.h"
 #include "networkCommunication.h"
 #include "sensors.h"
+#include "simple_sensor.h"
+#include "errors.h"
 
 
 int loop()
@@ -63,10 +66,22 @@ int loop()
             print_free_memory();
         #endif // DEBUG_MODE
         
-        // Sleep for SLEEP_TIME_BETWEEN_READINGS_IN_MS
-        sleep_ms(SLEEP_TIME_BETWEEN_READINGS_IN_MS);
+        // Sleep for SLEEP_TIME_BETWEEN_READINGS_IN_MS in four parts
+        sleep_and_toggle_led(SLEEP_TIME_BETWEEN_READINGS_IN_MS, 6);
+        //sleep_ms(SLEEP_TIME_BETWEEN_READINGS_IN_MS);
     }
     return 0;
+}
+
+// Sleep for the total duration in parts, toggling the LED after each part sleep
+void sleep_and_toggle_led(uint32_t sleep_time, uint8_t parts)
+{
+    for (uint8_t i = 0; i < parts; i++)
+    {
+        //sleep_ms(sleep_time / parts);
+        sleep_ms(sleep_time / parts);
+        toggle_led(LED_ACTIVITY);
+    }
 }
 
 
@@ -80,8 +95,22 @@ int main()
     // Clear the screen
     printf("\033[2J");
 
+    // Setup the LED GPIO pins
+    setup_led_pins();
+
+    // Check to see if the watchdog caused the reboot
+    if (watchdog_caused_reboot())
+    {
+        // Print a notice and report the error
+        printf("\nRebooted by Watchdog\n");
+        report_error(WATCHDOG_RESET_DETECTED);
+    }
+
     // Setup all of the sensors
     ret = setup_all_sensors();
+
+    // Setup the interrupt on the button
+    setup_interrupt();
 
     // Connect to the wifi network
     connect();

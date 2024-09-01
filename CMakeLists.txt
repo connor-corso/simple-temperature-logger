@@ -14,7 +14,9 @@ add_executable(simple_sensor
     memoryInfo.c
     networkCommunication.c
     sensors.c
-    )
+    errors.c
+    appGPIO.c
+)
 
 # For adding the dht20 library found in lib
 add_subdirectory("lib")
@@ -38,5 +40,6 @@ target_link_libraries(simple_sensor
         dht20
         pico_lwip_mbedtls
         pico_mbedtls
+        hardware_watchdog
     )
 pico_add_extra_outputs(simple_sensor)
