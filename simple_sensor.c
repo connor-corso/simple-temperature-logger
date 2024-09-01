@@ -18,11 +18,11 @@ int loop()
 {
     int ret = 0;
     uint32_t count = 1, ip_expiry_count = 0;
-    printf("Starting the temperature, humidity fetch loop.\n");
+    printf("Starting the temperature, humidity fetch loop.\n\n");
 
     // get the ip address from DNS
     ip_addr_t ip = set_ip();
-    printf("Got IP address");
+    print_ip_address(ip);
 
     while (true)
     {
@@ -48,7 +48,7 @@ int loop()
             // Measurement was successful, print info and transmit that information
             printf("\nMeasurement number: %d\n", count);
             printf("--- Temperature: %5.2f C°\n", getTemperature(sens_ptr));
-            printf("--- Humidity: %5.2f \%RH\n\n", getHumidity(sens_ptr));
+            printf("--- Humidity: %5.2f %%RH\n\n", getHumidity(sens_ptr));
             transmit_data(4, getTemperature(sens_ptr), ip);
             transmit_data(5, getHumidity(sens_ptr), ip);
         }
@@ -66,7 +66,6 @@ int loop()
         // Sleep for SLEEP_TIME_BETWEEN_READINGS_IN_MS
         sleep_ms(SLEEP_TIME_BETWEEN_READINGS_IN_MS);
     }
-
     return 0;
 }
 
@@ -74,10 +73,17 @@ int loop()
 int main()
 {
     int ret;
-    // Setup the dht20
-    ret = setup_dht20();
 
-    // Connect to the network
+    // Set up stdio
+    stdio_init_all();
+
+    // Clear the screen
+    printf("\033[2J");
+
+    // Setup all of the sensors
+    ret = setup_all_sensors();
+
+    // Connect to the wifi network
     connect();
 
     // In case we add failure conditions after setup, handle them after

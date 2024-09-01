@@ -74,6 +74,15 @@ ip_addr_t set_ip()
     return ip;
 }
 
+void print_ip_address(ip_addr_t ip)
+{
+    uint8_t first, second, third, fourth;
+    first = ip.addr & 0xFF;
+    second = (ip.addr >> 8) & 0xFF;
+    third = (ip.addr >> 16) & 0xFF;
+    fourth = (ip.addr >> 24) & 0xFF; 
+    printf("IP Address: %d.%d.%d.%d\n\n", first, second, third, fourth);
+}
 
 void transmit_data(int station, float data, ip_addr_t ip)
 {
