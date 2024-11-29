@@ -60,7 +60,7 @@ ip_addr_t set_ip()
 {
     ip_addr_t ip;
     ip4_addr_set_zero(&ip);
-    getIP("monitoring-backend.ccorso.ca", &ip);
+    getIP("monitoring-backend.ccorso.ca", &ip); // this is a CNAME record for jellyfin, which 
     //getIP("jellyfin.ccorso.ca", &ip); // Use jellyfin as that will get the home IP address instead of the cloudflare one
     while (!ip_addr_get_ip4_u32(&ip))
     {
@@ -93,7 +93,7 @@ void transmit_data(int station, float data, ip_addr_t ip)
     log_data_to_server(ip, data, myBuff1, station);
 
     // Print the results
-    #ifdef DEBUG_MODE
-        printf("Data: %f, station: %d. \nUpload results: %s", data, station, myBuff1);
-    #endif // DEBUG_MODE
+    printf("Data: %f, station: %d. \nUpload results: %s", data, station, myBuff1);
+#ifdef DEBUG_MODE
+#endif // DEBUG_MODE
 }

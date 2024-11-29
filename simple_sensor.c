@@ -29,6 +29,8 @@ int loop()
 
     while (true)
     {
+        // Setup the watchdog to reset the system if more than 5s has passed
+        watchdog_enable(5000, 0);
         // If the IP has been used for more than IP_REFRESH_TIMER, then get it again
         if (ip_expiry_count > IP_REFRESH_TIMER)
         {
@@ -36,7 +38,11 @@ int loop()
             ip = set_ip();
             // Reset the count
             ip_expiry_count = 0;
+            // Reset the watchdog timeout
+            watchdog_update();
         }
+
+
 
         // Take a measurement
         ret = getMeasurement(sens_ptr);
@@ -52,6 +58,11 @@ int loop()
             printf("\nMeasurement number: %d\n", count);
             printf("--- Temperature: %5.2f C°\n", getTemperature(sens_ptr));
             printf("--- Humidity: %5.2f %%RH\n\n", getHumidity(sens_ptr));
+            
+            // Reset the watchdog timeout
+            watchdog_update();
+
+            // Send the data to the logging server
             transmit_data(4, getTemperature(sens_ptr), ip);
             transmit_data(5, getHumidity(sens_ptr), ip);
         }
@@ -66,6 +77,8 @@ int loop()
             print_free_memory();
         #endif // DEBUG_MODE
         
+        // Disable the watchdog while we sleep (the sleep is quite unlikely to crash...)
+        watchdog_disable();
         // Sleep for SLEEP_TIME_BETWEEN_READINGS_IN_MS in four parts
         sleep_and_toggle_led(SLEEP_TIME_BETWEEN_READINGS_IN_MS, 6);
         //sleep_ms(SLEEP_TIME_BETWEEN_READINGS_IN_MS);

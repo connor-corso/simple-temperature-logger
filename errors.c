@@ -25,7 +25,18 @@ uint8_t error_status[MAX_NUM_ERRORS] = {0};
 // Report an error, for now this will just light up the related LED
 void report_error(uint32_t error_id)
 {
-    printf("Error severity: %d\n", error_codes[error_id].error_severity);
+    // Make sure that the error id being reported is valid
+    if (error_id >= MAX_NUM_ERRORS)
+    {
+        // If the error isn't valid, then report an invalid error code error
+        report_error(INVALID_ERROR_CODE);
+        return;
+    }
+    #ifdef DEBUG_MODE
+        printf("\nError ID: %d\nError severity: %d\n",error_id, error_codes[error_id].error_severity);
+    #endif // DEBUG_MODE
+
+    // Determine the appropriate action to take
     switch (error_codes[error_id].error_severity)
     {
         case SEVERITY_LEVEL_CRITICAL:
@@ -44,6 +55,9 @@ void report_error(uint32_t error_id)
             report_error(INVALID_ERROR_STATUS);
             break;
     }
+    
+    // Set the error_status to active
+    error_status[error_id] = ERROR_STATUS_ACTIVE;
 }
 
 

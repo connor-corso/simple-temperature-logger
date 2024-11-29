@@ -1,7 +1,5 @@
-
-#ifndef _LWIPOPTS_EXAMPLE_COMMONH_H
-#define _LWIPOPTS_EXAMPLE_COMMONH_H
-
+#ifndef __LWIPOPTS_H__
+#define __LWIPOPTS_H__
 
 // Common settings used in most of the pico_w examples
 // (see https://www.nongnu.org/lwip/2_1_x/group__lwip__opts.html for details)
@@ -87,15 +85,5 @@
 #define PPP_DEBUG                   LWIP_DBG_OFF
 #define SLIP_DEBUG                  LWIP_DBG_OFF
 #define DHCP_DEBUG                  LWIP_DBG_OFF
-
-#undef TCP_WND
-#define TCP_WND  16384
-
-#define LWIP_ALTCP               1
-#define LWIP_ALTCP_TLS           1
-#define LWIP_ALTCP_TLS_MBEDTLS   1
-
-#define LWIP_DEBUG 1
-#define ALTCP_MBEDTLS_DEBUG  LWIP_DBG_ON
 
 #endif /* __LWIPOPTS_H__ */

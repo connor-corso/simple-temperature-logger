@@ -1,14 +1,15 @@
 {
     "configurations": [
         {
-            "name": "Linux",
+            "name": "Release",
             "includePath": [
                 "${default}",
-                "/home/connor/pico/pico-sdk/src/common/pico_stdlib/include",
+                "/home/connor/pico/pico-sdk/src/common/pico_stdlib_headers/include",
                 "/home/connor/pico/pico-sdk/**",
-                "/home/connor/pico/pico-sdk/src/common/pico_base/include",
+                "/home/connor/pico/pico-sdk/src/common/pico_base_headers/include",
                 "/home/connor/pico/pico-sdk/lib/lwip/**",
-                "/home/connor/pico/pico-sdk/lib/**"
+                "/home/connor/pico/pico-sdk/lib/**",
+                "/home/connor/pico/pico-sdk/src/rp2_common/**"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/arm-none-eabi-gcc",
